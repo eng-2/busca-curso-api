@@ -1,0 +1,44 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model campus {
+  codigo_campus    Int            @id
+  codigo_ies       Int?
+  nome_campus      String?        @db.VarChar(255)
+  uf_campus        String?        @db.VarChar(2)
+  municipio_campus String?        @db.VarChar(255)
+  universidade     universidade?  @relation(fields: [codigo_ies], references: [codigo_ies], onDelete: NoAction, onUpdate: NoAction)
+  concorrencia     concorrencia[]
+}
+
+model concorrencia {
+  id_concorrencia       Int      @id @default(autoincrement())
+  etapa                 Int?
+  ds_etapa              String?  @db.VarChar(255)
+  tp_cota               String?  @db.VarChar(255)
+  tipo_mod_concorrencia String?  @db.VarChar(255)
+  mod_concorrencia      String?
+  qt_vagas_concorrencia Int?
+  nota_corte            Decimal? @db.Decimal
+  codigo_curso          Int?
+  codigo_campus         Int?
+  nome_curso            String?  @db.VarChar(255)
+  grau                  String?  @db.VarChar(255)
+  turno                 String?  @db.VarChar(255)
+  ds_periodicidade      String?  @db.VarChar(255)
+  campus                campus?  @relation(fields: [codigo_campus], references: [codigo_campus], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model universidade {
+  codigo_ies Int      @id
+  nome_ies   String?  @db.VarChar(255)
+  sigla_ies  String?  @db.VarChar(255)
+  uf_ies     String?  @db.VarChar(2)
+  campus     campus[]
+}
