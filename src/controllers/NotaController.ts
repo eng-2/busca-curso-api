@@ -62,13 +62,21 @@ const NotaController = {
             if (qtVagas) where['qt_vagas_concorrencia'] = { lte: parseInt(qtVagas) };
             if (notaCorte) where['nota_corte'] = { lte: parseFloat(notaCorte) };
 
-            if (uf) {
+            if (uf && municipio) {
                 const campus = await db.campus.findMany({
-                  where: { uf_campus : uf },
+                  where: { uf_campus : uf , municipio_campus : municipio },
                   select: { codigo_campus: true }
                 });
                 const campusCodigos = campus.map(c => c.codigo_campus);
                 where['codigo_campus'] = { in: campusCodigos };
+              }else if(uf){
+                const campus = await db.campus.findMany({
+                    where: { uf_campus : uf },
+                    select: { codigo_campus: true }
+                  });
+                  const campusCodigos = campus.map(c => c.codigo_campus);
+                  where['codigo_campus'] = { in: campusCodigos };
+
               }
 
 
