@@ -49,7 +49,7 @@ const NotaController = {
     async cursosPorNota(req: Request<{}, {}, {}, CursoQueryParams>, res: Response) {
         try {
             let where = {};
-            let whereCampus = {};
+          
 
             const { notaCorte, turno, grau, uf, municipio, qtVagas } = req.query;
 
@@ -62,25 +62,24 @@ const NotaController = {
             if (qtVagas) where['qt_vagas_concorrencia'] = { lte: parseInt(qtVagas) };
             if (notaCorte) where['nota_corte'] = { lte: parseFloat(notaCorte) };
 
+            if (uf) {
+                const campus = await db.campus.findMany({
+                  where: { uf_campus : uf },
+                  select: { codigo_campus: true }
+                });
+                const campusCodigos = campus.map(c => c.codigo_campus);
+                where['codigo_campus'] = { in: campusCodigos };
+              }
 
-            if (uf) whereCampus['campus'] = { 'uf_campus': uf };
-            if (municipio) whereCampus['campus'] = { 'municipio_campus': municipio };
+
+            // if (uf) whereCampus['uf_campus'] = uf ;
+            // if (municipio) whereCampus['municipio_campus'] =  municipio ;
 
 
-            console.log(where)
 
             const cursos = await db.concorrencia.findMany({
                 where,
-                include: {
-                    campus: {
-                        where: {
-                            AND: [
-                                whereCampus
-
-                            ]
-                        }
-                    }
-                }
+                include: { campus: true }
             });
 
             res.json(cursos);
