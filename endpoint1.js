@@ -1,20 +1,35 @@
-const express = require('express');
-const { Pool } = require('pg');
+import express from "express";
+import pg from "pg";
+const { Pool } = pg;
+
+// Factory Method
+class PoolFactoryBase {
+  createPool(config) {
+    throw new Error("createPool method must be implemented");
+  }
+}
+class PoolFactory extends PoolFactoryBase {
+  createPool(config) {
+    return new Pool(config);
+  }
+}
+
+// ConfiguraÃ§Ã£o do banco de dados
+const poolConfig = {
+  user: "colocar_usuario",
+  host: "localhost",
+  database: "colocar_nosso_bd",
+  password: "colocar_senha",
+  port: 5432,
+};
+
+const factory = new PoolFactory();
+const pool = factory.createPool(poolConfig);
 
 const app = express();
-const port = 3000; // porta
+const port = 3000;
 
-// Configuração do banco de dados
-const pool = new Pool({
-  user: 'colocar_usuario',
-  host: 'localhost',
-  database: 'colocar_nosso_bd',
-  password: 'colocar_senha',
-  port: 5432,
-});
-
-// Endpoint para listar os cursos com média de corte igual ou maior que uma nota enviada pelo usuário
-app.get('/api/cursos_por_nota', async (req, res) => {
+app.get("/api/cursos_por_nota", async (req, res) => {
   const { nota_minima } = req.query;
 
   try {
@@ -30,11 +45,11 @@ app.get('/api/cursos_por_nota', async (req, res) => {
 
     res.json(rows);
   } catch (err) {
-    console.error('Erro ao consultar o banco de dados:', err);
-    res.status(500).json({ message: 'Erro ao consultar o banco de dados' });
+    console.error("Erro ao consultar o banco de dados:", err);
+    res.status(500).json({ message: "Erro ao consultar o banco de dados" });
   }
 });
 
 app.listen(port, () => {
-  console.log(`Servidor rodando na porta ${port}`);
+  console.log(`Servidor rodando na porta http://localhost:${port}`);
 });
